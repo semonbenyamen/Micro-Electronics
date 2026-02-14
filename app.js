@@ -3,10 +3,11 @@ const express = require("express");
 const mongoose = require("mongoose");
 
 
-const User = require("./User");
+const User = require("./models/User");
 
 const app = express();
 const bcrypt = require("bcrypt");
+const Product = require("./models/Product");
 app.use(express.json());
 
 const mongo_url = process.env.DB_URL;
@@ -74,7 +75,27 @@ const authCode = Buffer.from(user._id.toString()).toString("base64");
     }
 });
 
+app.post('/product', async(req, res) => {
+    try {
+        const {productName, price, Quantity} = req.body;
 
+        if (!productName || !price || !Quantity ) {
+            return res.status(400).json({msg: "Please provide all product details"});
+        }
+        const newProduct = await Product.create({
+            productName,
+            price,
+            Quantity
+        });
+        res.status(200).json({
+            success: true,
+            msg: "Product added successfully",
+            data: newProduct
+        });
+    } catch (error) {
+        console.log(error);
+    }
+});
 
 const port = process.env.PORT || 8000;
 
